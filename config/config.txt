@@ -1,0 +1,2 @@
+[database]
+con = sqlite:///db/data.db
