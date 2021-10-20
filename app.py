@@ -11,7 +11,7 @@ from src.utils import CONTENT_STYLE, performance,eda, get_data, TABLE_STYLE, eng
 from pages import scraping, explore, report,login
 from server import app, server
 
-DEV = False
+DEV = True
 
 warnings.filterwarnings("ignore")
 
@@ -130,35 +130,35 @@ def pages(pathname):
 def data_render(tab):
     df = get_data()
     if tab == "tab-2":
-        df = df[df.columns[[0,1,3,-2,-1]]]
+        df = df[df.columns[[0,1,2,4,-2,-1]]]
         return dt.DataTable(
             data=df.to_dict('records'),
             columns=[{'id': c, 'name': c} for c in df.columns],
             **TABLE_STYLE
         ), "The data has been cleaned and case folded, by removing unused strings and punctuation."
     elif tab == "tab-3":
-        df = df[df.columns[[0,1,4,-2,-1]]]
+        df = df[df.columns[[0,1,2,5,-2,-1]]]
         return dt.DataTable(
             data=df.to_dict('records'),
             columns=[{'id': c, 'name': c} for c in df.columns],
             **TABLE_STYLE
         ), "The text has been tokenized using NLTK library and slang words has been substitued."
     elif tab == "tab-4":
-        df = df[df.columns[[0,1,5,-2,-1]]]
+        df = df[df.columns[[0,1,2,6,-2,-1]]]
         return dt.DataTable(
             data=df.to_dict('records'),
             columns=[{'id': c, 'name': c} for c in df.columns],
             **TABLE_STYLE
         ), "The stopwords and emojis were removed from the texts."
     elif tab == "tab-5":
-        df = df[df.columns[[0,1,6,-2,-1]]]
+        df = df[df.columns[[0,1,2,7,-2,-1]]]
         return dt.DataTable(
             data=df.to_dict('records'),
             columns=[{'id': c, 'name': c} for c in df.columns],
             **TABLE_STYLE
         ), "Stemming in Indonesian language using Nazief-and-Adriani-algorithm."
     else:
-        df = df[df.columns[[0,1,2,-2,-1]]]
+        df = df[df.columns[[0,1,2,3,-2,-1]]]
         return dt.DataTable(
             data=df.to_dict('records'),
             columns=[{'id': c, 'name': c} for c in df.columns],

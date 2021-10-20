@@ -48,7 +48,7 @@ consumerSecret = "CONSUMER SECRET"
 accessToken = "ACCESS TOKEN"
 accessTokenSecret = "ACCESS TOKEN SECRET"
 
-template = "plotly"
+template = "plotly_dark"
 
 auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
 auth.set_access_token(accessToken, accessTokenSecret)
@@ -60,15 +60,15 @@ slang_words = ast.literal_eval(content)
 
 TABLE_STYLE = dict(
     style_cell={
-        'backgroundColor': 'rgb(240, 240, 240)',
-        'color': 'black',
+        'backgroundColor': 'rgb(100, 100, 100)',
+        'color': 'white',
         'font-family': "Lato",
         'textAlign': 'left'
     },
     style_table={'overflowX': 'auto'},
     page_size=15,
     style_header={
-        'backgroundColor': 'lightgray',
+        'backgroundColor': 'black',
         'fontWeight': 'bold',
     },
     editable=True,
@@ -146,7 +146,7 @@ nav = dbc.Navbar([
         ],
         pills=True,
     ),
-],color="light", dark=True)
+],color="dark", dark=True)
 
 home = [
     dbc.Jumbotron(
@@ -173,20 +173,13 @@ title = html.Div([
 ])
 
 def keywords():
+    keysd = pd.read_sql_query("select * from crawling", con=engine)
     keys = pd.read_sql_query("select * from keywords", con=engine)
-    zero = []
-    one = []
-    two = []
-    for m,n in enumerate(sorted(keys.values)):
-        if m%3 == 0:
-            zero.append(n)
-        elif m%3 == 1:
-            one.append(n)
-        else:
-            two.append(n)
-    k = pd.DataFrame([zero,one,two]).T
-    k.columns = ["Left","Center","Right"]
-    return k
+    df = keys.join(keysd.groupby("keywords").agg({
+        "username":"nunique",
+        "full_text":"count"
+    }),on="keywords").fillna(0)
+    return df
 
 def get_data():
     df = pd.read_sql_query("select * from data", con=engine)
@@ -214,7 +207,7 @@ def performance():
     report1 = classification_report(y_train,y_pred, target_names=le.classes_, output_dict=True)
     report1 = pd.DataFrame(report1).transpose()
     cf1 = confusion_matrix(y_train, y_pred)
-    cf1 = px.imshow(cf1, x=le.classes_, y=le.classes_)
+    cf1 = px.imshow(cf1, x=le.classes_, y=le.classes_, color_continuous_scale=px.colors.diverging.Spectral)
     cf1.update_layout(
         title="Confusion Matrix Training Dataset",
         hovermode="x",
@@ -225,7 +218,7 @@ def performance():
     report2 = classification_report(y_test,y_pred_, target_names=le.classes_, output_dict=True)
     report2 = pd.DataFrame(report2).transpose()
     cf2 = confusion_matrix(y_test, y_pred_)
-    cf2 = px.imshow(cf2, x=le.classes_, y=le.classes_)
+    cf2 = px.imshow(cf2, x=le.classes_, y=le.classes_, color_continuous_scale=px.colors.diverging.Spectral)
     cf2.update_layout(
         title="Confusion Matrix Test Dataset",
         hovermode="x",
@@ -331,7 +324,7 @@ def eda():
     df_sen = get_sentiment()
     au = get_top_abs_correlations(df_sen, 15)
     corr = top_ten_corr(au,df_sen)
-    fig1 = px.histogram(df['sentiment'],x='sentiment',marginal='box')
+    fig1 = px.histogram(df['sentiment'],x='sentiment',marginal='box', color_discrete_sequence=['indianred'])
     fig1.update_layout(
         title="Sentiment Score Distribution",
         hovermode="x",
@@ -339,7 +332,7 @@ def eda():
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)'
     )
-    fig2 = px.pie(df.groupby('label').size().to_frame('count').reset_index(),names='label',values='count')
+    fig2 = px.pie(df.groupby('label').size().to_frame('count').reset_index(),names='label',values='count', color_discrete_sequence=px.colors.sequential.Darkmint)
     fig2.update_layout(
         title="Sentiment Label Composition",
         hovermode="x",
@@ -347,7 +340,7 @@ def eda():
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)'
     )
-    fig3 = ff.create_annotated_heatmap(corr.values.tolist(), x=corr.columns.values.tolist(), y=corr.index.values.tolist())
+    fig3 = ff.create_annotated_heatmap(corr.values.tolist(), x=corr.columns.values.tolist(), y=corr.index.values.tolist(), colorscale="Earth")
     fig3.update_layout(
         title="Top 10 Correlation",
         hovermode="x",

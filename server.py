@@ -5,7 +5,7 @@ from flask_login import LoginManager, UserMixin
 from src.db import db, User as base
 from src.config import config
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL],suppress_callback_exceptions=True)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY],suppress_callback_exceptions=True)
 
 app.title = "Sentiment Analysis"
 
